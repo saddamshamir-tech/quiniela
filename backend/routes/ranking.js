@@ -53,7 +53,7 @@ router.post('/admin/tokens', authMiddleware, adminMiddleware, async (req, res) =
   }
 
   try {
-    const values = tokens.map(t => `('${t.toUpperCase().substring(0, 4)}')`).join(',');
+    const values = tokens.map(t => `('${t.toUpperCase().substring(0, 10)}')`).join(',');
     await pool.query(`INSERT INTO registration_tokens (token) VALUES ${values} ON CONFLICT DO NOTHING`);
     res.json({ message: `${tokens.length} token(s) agregado(s).` });
   } catch (error) {
