@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Quiniela del Mundial FIFA 2026 - Predice los resultados y compite con tus amigos">
+  <title>⚽ Quiniela Mundial FIFA 2026</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-ball"></div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#f4c430;letter-spacing:3px;">Cargando...</div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- ==================== AUTH SCREEN ==================== -->
+<div id="auth-screen" class="hidden">
+  <div class="auth-bg-pattern"></div>
+  <div class="auth-container">
+    <div class="auth-header">
+      <span class="auth-logo">🏆</span>
+      <div class="auth-title">QUINIELA MUNDIAL</div>
+      <div class="auth-subtitle">⚽ FIFA World Cup 2026 ⚽</div>
+    </div>
+
+    <div class="auth-card">
+      <div class="tab-switcher">
+        <button class="tab-btn active" onclick="switchAuthTab('login')">
+          🔑 Iniciar Sesión
+        </button>
+        <button class="tab-btn" onclick="switchAuthTab('register')">
+          📝 Registrarse
+        </button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="login-form">
+        <div class="form-group">
+          <label class="form-label">📧 Correo Electrónico</label>
+          <input type="email" id="login-email" class="form-input" placeholder="tu@correo.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔒 Contraseña</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="btn btn-primary" onclick="handleLogin()">
+          ⚽ Entrar a la Quiniela
+        </button>
+        <div class="mt-16 text-center">
+          <span style="font-size:0.8rem;color:var(--text-muted)">
+            ¿No tienes cuenta? 
+            <button onclick="switchAuthTab('register')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-weight:600;">Regístrate aquí</button>
+          </span>
+        </div>
+      </div>
+
+      <!-- REGISTER FORM -->
+      <div id="register-form" class="hidden">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">👤 Nombre</label>
+            <input type="text" id="reg-nombre" class="form-input" placeholder="Juan" autocomplete="given-name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">👤 Apellido</label>
+            <input type="text" id="reg-apellido" class="form-input" placeholder="Pérez" autocomplete="family-name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📧 Correo Electrónico</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="tu@correo.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">🔒 Contraseña</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="form-label">🎫 Token de Registro</label>
+          <input type="text" id="reg-token" class="form-input" placeholder="Código de 4 dígitos" maxlength="5" style="text-transform:uppercase;letter-spacing:3px;font-size:1.1rem;font-weight:700;" autocomplete="off">
+          <div class="token-hint">
+            🔐 El token de acceso debe ser proporcionado por el administrador del grupo
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="handleRegister()">
+          🚀 Crear Cuenta
+        </button>
+        <div class="mt-16 text-center">
+          <span style="font-size:0.8rem;color:var(--text-muted)">
+            ¿Ya tienes cuenta? 
+            <button onclick="switchAuthTab('login')" style="background:none;border:none;color:var(--gold);cursor:pointer;font-weight:600;">Inicia sesión</button>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-24 text-center" style="font-size:0.75rem;color:var(--text-muted)">
+      🇺🇸🇲🇽🇨🇦 USA · México · Canadá · Junio-Julio 2026
+    </div>
+  </div>
+</div>
+
+<!-- ==================== APP SCREEN ==================== -->
+<div id="app-screen" class="hidden">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <span class="brand-icon">⚽</span>
+        <span class="brand-text">QUINIELA 2026</span>
+      </div>
+
+      <div class="navbar-nav">
+        <button class="nav-btn active" onclick="showPage('home')" id="nav-home">
+          🏠 <span>Inicio</span>
+        </button>
+        <button class="nav-btn" onclick="showPage('matches')" id="nav-matches">
+          📅 <span>Partidos</span>
+        </button>
+        <button class="nav-btn" onclick="showPage('ranking')" id="nav-ranking">
+          🏆 <span>Ranking</span>
+        </button>
+        <button class="nav-btn hidden" onclick="showPage('admin')" id="nav-admin">
+          ⚙️ <span>Admin</span>
+        </button>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="nav-user" id="nav-user-info">
+          <div class="nav-avatar" id="nav-avatar">?</div>
+          <div>
+            <div class="nav-username" id="nav-username">Cargando...</div>
+            <div class="nav-points" id="nav-points">0 pts</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="handleLogout()" title="Cerrar sesión">🚪</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- ===== HOME PAGE ===== -->
+    <div id="page-home" class="page active">
+      <!-- Hero -->
+      <div class="hero-section">
+        <div class="hero-flags">🇺🇸🇲🇽🇨🇦🇧🇷🇦🇷🇫🇷🇩🇪🇪🇸🇵🇹🇬🇧🇮🇹🇳🇱</div>
+        <div class="hero-title">FIFA WORLD CUP 2026</div>
+        <div class="hero-sub">QUINIELA OFICIAL DEL GRUPO</div>
+        <div class="hero-badges">
+          <span class="badge badge-gold">🏆 1 pto. por resultado</span>
+          <span class="badge badge-green">⭐ +1 pto. marcador exacto</span>
+          <span class="badge badge-red">🔒 Cierre 5 min antes</span>
+        </div>
+      </div>
+
+      <!-- My Stats Card -->
+      <div id="my-stats-card" style="background:linear-gradient(135deg,rgba(244,196,48,0.08),rgba(233,69,96,0.06));border:1px solid rgba(244,196,48,0.15);border-radius:var(--radius);padding:24px;margin-bottom:28px;display:none;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+          <div>
+            <div style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Mis Estadísticas</div>
+            <div id="my-stats-name" style="font-size:1.3rem;font-weight:700;"></div>
+          </div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div id="my-total-pts" style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold);line-height:1;">0</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Total Pts</div>
+            </div>
+            <div style="text-align:center;">
+              <div id="my-results" style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--green);line-height:1;">0</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Resultados</div>
+            </div>
+            <div style="text-align:center;">
+              <div id="my-exact" style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:#a78bfa;line-height:1;">0</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Exactos</div>
+            </div>
+            <div style="text-align:center;">
+              <div id="my-position" style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--accent);line-height:1;">-</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">Posición</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ranking Preview -->
+      <div class="section-header mb-16">
+        <div class="section-title">
+          <div class="icon icon-gold">🏆</div>
+          Tabla de Posiciones
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="showPage('ranking')">Ver completa →</button>
+      </div>
+      <div id="home-ranking" style="margin-bottom:32px;">
+        <div class="skeleton" style="height:200px;"></div>
+      </div>
+
+      <!-- Next Matches Preview -->
+      <div class="section-header mb-16">
+        <div class="section-title">
+          <div class="icon icon-red">⚽</div>
+          Próximos Partidos
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="showPage('matches')">Ver todos →</button>
+      </div>
+      <div id="home-matches">
+        <div class="skeleton" style="height:300px;"></div>
+      </div>
+    </div>
+
+    <!-- ===== MATCHES PAGE ===== -->
+    <div id="page-matches" class="page">
+      <div class="section-header mb-16">
+        <div class="section-title">
+          <div class="icon icon-red">📅</div>
+          Calendario de Partidos
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="filter-container mb-24" id="group-filters">
+        <button class="filter-tab active" onclick="filterMatches(null, this)">🌍 Todos</button>
+      </div>
+
+      <div id="matches-container">
+        <div class="skeleton" style="height:400px;border-radius:16px;"></div>
+      </div>
+    </div>
+
+    <!-- ===== RANKING PAGE ===== -->
+    <div id="page-ranking" class="page">
+      <div class="section-header mb-24">
+        <div class="section-title">
+          <div class="icon icon-gold">🏆</div>
+          Tabla General de Posiciones
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadRanking()">🔄 Actualizar</button>
+      </div>
+
+      <div class="ranking-table">
+        <div class="ranking-table-header">
+          <div>#</div>
+          <div>Jugador</div>
+          <div style="text-align:center;">Pts</div>
+          <div style="text-align:center;">Resultados</div>
+          <div style="text-align:center;">Exactos</div>
+        </div>
+        <div id="ranking-body">
+          <div class="skeleton" style="height:300px;margin:8px;border-radius:8px;"></div>
+        </div>
+      </div>
+
+      <!-- Scoring explanation -->
+      <div style="margin-top:24px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;">
+        <div class="section-title mb-16" style="font-size:1rem;">📖 Sistema de Puntuación</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+          <div style="background:rgba(0,208,132,0.05);border:1px solid rgba(0,208,132,0.15);border-radius:10px;padding:16px;">
+            <div style="font-size:1.5rem;margin-bottom:8px;">✅</div>
+            <div style="font-weight:700;color:var(--green);margin-bottom:4px;">1 Punto</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">Por acertar el resultado del partido (quién gana o si empata)</div>
+          </div>
+          <div style="background:rgba(244,196,48,0.05);border:1px solid rgba(244,196,48,0.15);border-radius:10px;padding:16px;">
+            <div style="font-size:1.5rem;margin-bottom:8px;">⭐</div>
+            <div style="font-weight:700;color:var(--gold);margin-bottom:4px;">+1 Punto Extra</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">Por adivinar el marcador exacto del partido</div>
+          </div>
+          <div style="background:rgba(233,69,96,0.05);border:1px solid rgba(233,69,96,0.15);border-radius:10px;padding:16px;">
+            <div style="font-size:1.5rem;margin-bottom:8px;">🔒</div>
+            <div style="font-weight:700;color:var(--accent);margin-bottom:4px;">Bloqueo Automático</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">Las predicciones se cierran 5 minutos antes de cada partido</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN PAGE ===== -->
+    <div id="page-admin" class="page">
+      <div class="section-header mb-24">
+        <div class="section-title">
+          <div class="icon icon-blue">⚙️</div>
+          Panel de Administración
+        </div>
+      </div>
+
+      <div class="admin-grid">
+        <!-- Actualizar Resultados -->
+        <div class="admin-card" style="grid-column:1/-1;">
+          <div class="admin-card-title">⚽ Actualizar Resultados de Partidos</div>
+          <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;">
+            <input type="text" id="admin-match-search" class="form-input" placeholder="🔍 Buscar partido..." style="max-width:300px;" oninput="filterAdminMatches(this.value)">
+            <select id="admin-status-filter" class="form-input" style="max-width:200px;" onchange="filterAdminMatches()">
+              <option value="">Todos los estados</option>
+              <option value="scheduled">Programados</option>
+              <option value="live">En vivo</option>
+              <option value="finished">Finalizados</option>
+            </select>
+          </div>
+          <div class="admin-matches-list" id="admin-matches-list">
+            <div class="skeleton" style="height:200px;border-radius:8px;"></div>
+          </div>
+        </div>
+
+        <!-- Tokens de Registro -->
+        <div class="admin-card">
+          <div class="admin-card-title">🎫 Tokens de Registro</div>
+          <div style="margin-bottom:16px;display:flex;gap:8px;">
+            <input type="text" id="new-token-input" class="form-input" placeholder="Token (4 chars)" maxlength="5" style="text-transform:uppercase;">
+            <button class="btn btn-primary btn-sm" style="width:auto;white-space:nowrap;" onclick="addToken()">+ Agregar</button>
+          </div>
+          <div id="tokens-list">
+            <div class="skeleton" style="height:150px;border-radius:8px;"></div>
+          </div>
+        </div>
+
+        <!-- Crear Admin -->
+        <div class="admin-card">
+          <div class="admin-card-title">👑 Crear Administrador</div>
+          <div class="form-group">
+            <label class="form-label">Nombre</label>
+            <input type="text" id="admin-nombre" class="form-input" placeholder="Nombre">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Apellido</label>
+            <input type="text" id="admin-apellido" class="form-input" placeholder="Apellido">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="admin-email" class="form-input" placeholder="admin@correo.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contraseña</label>
+            <input type="password" id="admin-pass" class="form-input" placeholder="Contraseña segura">
+          </div>
+          <button class="btn btn-primary" onclick="createAdmin()">👑 Crear Admin</button>
+        </div>
+
+        <!-- Lista de Usuarios -->
+        <div class="admin-card">
+          <div class="admin-card-title">👥 Usuarios Registrados</div>
+          <div id="admin-users-list">
+            <div class="skeleton" style="height:200px;border-radius:8px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app-screen -->
+
+<!-- MODAL DE CONFIRMACIÓN -->
+<div id="confirm-modal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="confirm-title">Confirmar</div>
+      <button class="modal-close" onclick="closeModal('confirm-modal')">✕</button>
+    </div>
+    <div id="confirm-body" style="color:var(--text-muted);margin-bottom:24px;"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-secondary" onclick="closeModal('confirm-modal')" style="flex:1;">Cancelar</button>
+      <button class="btn btn-primary" id="confirm-ok-btn" style="flex:1;">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
