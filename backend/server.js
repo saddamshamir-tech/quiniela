@@ -60,9 +60,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/matches', require('./routes/matches'));
 app.use('/api/predictions', require('./routes/predictions'));
-app.use('/api/ranking', require('./routes/ranking'));
-
-// Ruta para el panel admin (admin matches y tokens están en ranking router)
+// ranking y admin comparten el mismo router, montado una sola vez en /api
+// Esto expone: /api/ranking  y  /api/admin/*
 app.use('/api', require('./routes/ranking'));
 
 // ============ FRONTEND STATIC FILES ============
